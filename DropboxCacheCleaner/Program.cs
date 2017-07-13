@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace DropboxCacheCleaner
 {
@@ -22,12 +23,13 @@ namespace DropboxCacheCleaner
             CheckDelete(e.FullPath);
         }
 
-        private static void CheckDelete(string path)
+        private static void CheckDelete(string path, int count = 5)
         {
             if (path.IndexOf("(deleted") != -1)
             {
-                Console.WriteLine("Delete: " + path);
-                File.Delete(path);
+                Console.WriteLine($"{count} Delete: \"{path}\"");
+                try { File.Delete(path); }
+                catch { if (count > 0) Task.Delay(1000).ContinueWith(_ => CheckDelete(path, count - 1)); }
             }
         }
     }
